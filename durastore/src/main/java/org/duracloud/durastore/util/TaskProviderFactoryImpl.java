@@ -29,6 +29,7 @@ import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskProvider;
 import org.duracloud.storage.provider.TaskProviderFactory;
 import org.duracloud.storage.util.StorageProviderFactory;
+import org.duracloud.swifttask.SwiftTaskProvider;
 
 /**
  * Provides access to TaskProvider implementations
@@ -103,6 +104,8 @@ public class TaskProviderFactoryImpl extends ProviderFactoryBase
                                               cfKeyPath,
                                               storageAccountId,
                                               dcHost);
+        } else if (type.equals(StorageProviderType.SWIFT_S3)) {
+            taskProvider = new SwiftTaskProvider(storageAccountId);
         } else if (type.equals(StorageProviderType.AMAZON_GLACIER)) {
             GlacierStorageProvider unwrappedGlacierProvider =
                 new GlacierStorageProvider(username, password, account.getOptions());
@@ -114,7 +117,7 @@ public class TaskProviderFactoryImpl extends ProviderFactoryBase
                                                    storageAccountId);
         } else if (type.equals(StorageProviderType.CHRONOPOLIS)) {
             SnapshotStorageProvider unwrappedSnapshotProvider =
-                new ChronopolisStorageProvider(username, password);
+                new ChronopolisStorageProvider(username, password, account.getOptions());
             AmazonS3 s3Client =
                 S3ProviderUtil.getAmazonS3Client(username, password, account.getOptions());
 

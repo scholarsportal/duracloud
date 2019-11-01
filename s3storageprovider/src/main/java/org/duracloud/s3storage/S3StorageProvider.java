@@ -58,6 +58,7 @@ import org.duracloud.storage.domain.RetrievedContent;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.ChecksumMismatchException;
 import org.duracloud.storage.error.NotFoundException;
+import org.duracloud.storage.error.SpaceAlreadyExistsException;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.StorageProviderBase;
@@ -75,16 +76,16 @@ public class S3StorageProvider extends StorageProviderBase {
     private final Logger log = LoggerFactory.getLogger(S3StorageProvider.class);
 
     protected static final int MAX_ITEM_COUNT = 1000;
-    private static final StorageClass DEFAULT_STORAGE_CLASS =
+    protected static final StorageClass DEFAULT_STORAGE_CLASS =
         StorageClass.Standard;
 
     private static final String UTF_8 = StandardCharsets.UTF_8.name();
-    protected static final String HIDDEN_SPACE_PREFIX = "hidden-";
+    public static final String HIDDEN_SPACE_PREFIX = "hidden-";
 
     protected static final String HEADER_VALUE_PREFIX = UTF_8 + "''";
     protected static final String HEADER_KEY_SUFFIX = "*";
 
-    private String accessKeyId = null;
+    protected String accessKeyId = null;
     protected AmazonS3 s3Client = null;
 
     public S3StorageProvider(String accessKey, String secretKey) {
@@ -223,7 +224,9 @@ public class S3StorageProvider extends StorageProviderBase {
      */
     public void createSpace(String spaceId) {
         log.debug("createSpace(" + spaceId + ")");
-        throwIfSpaceExists(spaceId);
+        if (spaceExists(spaceId)) {
+            throw new SpaceAlreadyExistsException(spaceId);
+        }
 
         Bucket bucket = createBucket(spaceId);
 
@@ -248,7 +251,7 @@ public class S3StorageProvider extends StorageProviderBase {
         }
     }
 
-    private Bucket createBucket(String spaceId) {
+    protected Bucket createBucket(String spaceId) {
         String bucketName = getNewBucketName(spaceId);
         try {
             Bucket bucket = s3Client.createBucket(bucketName);
@@ -267,7 +270,7 @@ public class S3StorageProvider extends StorageProviderBase {
         }
     }
 
-    private String getHiddenBucketName(String spaceId) {
+    protected String getHiddenBucketName(String spaceId) {
         return HIDDEN_SPACE_PREFIX + getNewBucketName(spaceId);
     }
 
@@ -305,7 +308,6 @@ public class S3StorageProvider extends StorageProviderBase {
         }
     }
 
-
     /**
      * Defines the storage policy for the primary S3 provider.
      * Subclasses can define different policy choices.
@@ -325,13 +327,13 @@ public class S3StorageProvider extends StorageProviderBase {
     public void setSpaceLifecycle(String bucketName,
                                   BucketLifecycleConfiguration config) {
         boolean success = false;
-        int maxLoops = 6;
+        int maxLoops = 8;
         for (int loops = 0; !success && loops < maxLoops; loops++) {
             try {
                 s3Client.deleteBucketLifecycleConfiguration(bucketName);
                 s3Client.setBucketLifecycleConfiguration(bucketName, config);
                 success = true;
-            } catch (NotFoundException e) {
+            } catch (NotFoundException | AmazonS3Exception e) {
                 success = false;
                 wait(loops);
             }
@@ -348,7 +350,7 @@ public class S3StorageProvider extends StorageProviderBase {
         return S3ProviderUtil.createNewBucketName(accessKeyId, spaceId);
     }
 
-    private String formattedDate(Date date) {
+    protected String formattedDate(Date date) {
         return DateUtil.convertToString(date.getTime());
     }
 
@@ -379,8 +381,16 @@ public class S3StorageProvider extends StorageProviderBase {
 
         // Retrieve space properties from bucket tags
         Map<String, String> spaceProperties = new HashMap<>();
-        BucketTaggingConfiguration tagConfig =
-            s3Client.getBucketTaggingConfiguration(bucketName);
+
+        BucketTaggingConfiguration tagConfig;
+        try {
+            tagConfig = s3Client.getBucketTaggingConfiguration(bucketName);
+        } catch (AmazonClientException e) {
+            String err = "Could not get bucket tagging configuration in S3 bucket " +
+                         bucketName + " due to error: " + e.getMessage();
+            throw new StorageException(err, e, RETRY);
+        }
+
         if (null != tagConfig) {
             for (TagSet tagSet : tagConfig.getAllTagSets()) {
                 spaceProperties.putAll(tagSet.getAllTags());
@@ -429,7 +439,7 @@ public class S3StorageProvider extends StorageProviderBase {
         return String.valueOf(count) + suffix;
     }
 
-    private String getBucketCreationDate(String bucketName) {
+    protected String getBucketCreationDate(String bucketName) {
         Date created = null;
         try {
             List<Bucket> buckets = s3Client.listBuckets();
@@ -487,14 +497,20 @@ public class S3StorageProvider extends StorageProviderBase {
         // Store properties
         BucketTaggingConfiguration tagConfig = new BucketTaggingConfiguration()
             .withTagSets(new TagSet(spaceProperties));
-        s3Client.setBucketTaggingConfiguration(bucketName, tagConfig);
+        try {
+            s3Client.setBucketTaggingConfiguration(bucketName, tagConfig);
+        } catch (AmazonClientException e) {
+            String err = "Could not update bucket tagging configuration in S3 bucket " +
+                         bucketName + " due to error: " + e.getMessage();
+            throw new StorageException(err, e, RETRY);
+        }
     }
 
     /*
      * Performs a replaceAll of one string value for another in all the values
      * of a map.
      */
-    private Map<String, String> replaceInMapValues(Map<String, String> map,
+    protected Map<String, String> replaceInMapValues(Map<String, String> map,
                                                    String oldVal,
                                                    String newVal) {
         for (String key : map.keySet()) {
@@ -760,7 +776,7 @@ public class S3StorageProvider extends StorageProviderBase {
 
     protected void wait(int seconds) {
         try {
-            Thread.sleep(1000 * seconds);
+            Thread.sleep(2000 * seconds);
         } catch (InterruptedException e) {
             // End sleep on interruption
         }
@@ -951,7 +967,7 @@ public class S3StorageProvider extends StorageProviderBase {
         return contentProperties;
     }
 
-    private void throwIfContentNotExist(String bucketName, String contentId) {
+    protected void throwIfContentNotExist(String bucketName, String contentId) {
         try {
             s3Client.getObjectMetadata(bucketName, contentId);
         } catch (AmazonClientException e) {
@@ -974,9 +990,9 @@ public class S3StorageProvider extends StorageProviderBase {
         }
     }
 
-    private void updateObjectProperties(String bucketName,
-                                        String contentId,
-                                        ObjectMetadata objMetadata) {
+    protected void updateObjectProperties(String bucketName,
+                                          String contentId,
+                                          ObjectMetadata objMetadata) {
         try {
             AccessControlList originalACL =
                 s3Client.getObjectAcl(bucketName, contentId);
@@ -1024,7 +1040,7 @@ public class S3StorageProvider extends StorageProviderBase {
         return super.getSpaceProperties(spaceId);
     }
 
-    private Map<String, String> prepContentProperties(ObjectMetadata objMetadata) {
+    protected Map<String, String> prepContentProperties(ObjectMetadata objMetadata) {
         Map<String, String> contentProperties = new HashMap<>();
 
         // Set the user properties

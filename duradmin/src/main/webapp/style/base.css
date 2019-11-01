@@ -271,6 +271,11 @@ body > #page-header
 	background:url(../images/chronopolis.png) no-repeat;
 }
 
+.swift_s3-logo
+{
+    background:url(../images/swift.png) no-repeat;
+}
+
 .ui-layout-resizer
 {
 	background-color:#4b4b4b;
@@ -653,7 +658,8 @@ input.dc-check-all
 }
 
 .detail-pane > .north {
-	overflow: hidden;
+	overflow: auto;
+	overflow-x: auto;
 }
 
 .detail-pane th {
