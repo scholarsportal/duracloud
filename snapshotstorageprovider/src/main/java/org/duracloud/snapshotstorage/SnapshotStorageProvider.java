@@ -10,7 +10,6 @@ package org.duracloud.snapshotstorage;
 import java.util.Map;
 
 import com.amazonaws.services.s3.AmazonS3;
-//import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.s3storage.StoragePolicy;
 import org.duracloud.swiftstorage.SwiftStorageProvider;
 import org.slf4j.Logger;

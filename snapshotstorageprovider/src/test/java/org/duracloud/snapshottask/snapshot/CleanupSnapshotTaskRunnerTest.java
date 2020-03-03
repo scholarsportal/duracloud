@@ -118,7 +118,7 @@ public class CleanupSnapshotTaskRunnerTest extends EasyMockSupport {
         Capture<Set<Task>> taskCapture = new Capture<>();
 
         expect(unwrappedSnapshotProvider.getStorageProviderType())
-            .andReturn(StorageProviderType.AMAZON_S3);
+            .andReturn(StorageProviderType.AMAZON_S3).times(2);
 
         auditQueue.put(capture(taskCapture));
         expectLastCall().once();
