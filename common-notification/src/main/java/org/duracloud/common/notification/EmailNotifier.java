@@ -35,7 +35,8 @@ public class EmailNotifier implements Notifier {
     public void initialize(NotificationConfig notificationConfig) {
         NotificationFactory factory = new AmazonNotificationFactory();
         if (notificationConfig.getNotificationType().trim().equalsIgnoreCase("spring")) {
-            factory = new SpringNotificationFactory(notificationConfig.getNotificationHost(), Integer.parseInt(notificationConfig.getNotificationPort()));
+            factory = new SpringNotificationFactory(notificationConfig.getNotificationHost(),
+                                                    Integer.parseInt(notificationConfig.getNotificationPort()));
         }
         factory.initialize(notificationConfig.getUsername(),
                            notificationConfig.getPassword());
