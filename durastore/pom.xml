@@ -4,14 +4,14 @@
   <groupId>org.duracloud</groupId>
   <artifactId>durastore</artifactId>
   <packaging>war</packaging>
-  <version>6.1.1</version>
+  <version>6.2.0</version>
   <name>DuraCloud DuraStore</name>
   <url>http://localhost:8080/${project.artifactId}</url>
 
   <parent>
     <groupId>org.duracloud</groupId>
     <artifactId>duracloud</artifactId>
-    <version>6.1.1</version>
+    <version>6.2.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -116,7 +116,7 @@
 
     <dependency>
       <groupId>org.duracloud</groupId>
-      <artifactId>common-sns</artifactId>
+      <artifactId>common-changenotifier</artifactId>
       <version>${project.version}</version>
     </dependency>
 
@@ -164,10 +164,16 @@
       <artifactId>s3storageprovider</artifactId>
       <version>${project.version}</version>
     </dependency>
-
+    
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>swiftstorageprovider</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>storageproviderdata</artifactId>
       <version>${project.version}</version>
     </dependency>
     

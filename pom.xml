@@ -5,14 +5,10 @@
   <groupId>org.duracloud</groupId>
   <artifactId>duracloud</artifactId>
   <packaging>pom</packaging>
-  <version>6.1.1</version>
+  <version>6.2.0</version>
   <name>DuraCloud</name>
   <description>Cloud-based digital content preservation system</description>
-  <url>http://duracloud.org</url>
-
-  <prerequisites>
-    <maven>3.0.0</maven>
-  </prerequisites>
+  <url>https://duracloud.org</url>
 
   <inceptionYear>2009</inceptionYear>
 
@@ -33,13 +29,13 @@
   <licenses>
     <license>
       <name>Apache License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+      <url>https://www.apache.org/licenses/LICENSE-2.0</url>
     </license>
   </licenses>
 
   <organization>
-    <name>DuraSpace</name>
-    <url>http://www.duraspace.org</url>
+    <name>LYRASIS</name>
+    <url>https://lyrasis.org</url>
   </organization>
 
   <scm>
@@ -54,6 +50,7 @@
     <module>common-cli</module>
     <module>notification</module>
     <module>notification-amazon</module>
+    <module>notification-smtp</module>
     <module>common-db</module>
     <module>common-rest</module>
     <module>common-xml</module>
@@ -62,7 +59,7 @@
     <module>common-cache</module>
     <module>common-notification</module>
     <module>common-queue</module>
-    <module>common-sns</module>
+    <module>common-changenotifier</module>
     <module>common-aop</module>
     <module>storageprovider</module>
     <module>storeclient</module>
@@ -235,8 +232,8 @@
     <instrumentedTests>**/*Test*__*.class</instrumentedTests>
     <innerClasses>**/*$*</innerClasses>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <duracloud.db.version>6.1.0</duracloud.db.version>
-    <duraspace-codestyle.version>1.0.0</duraspace-codestyle.version>
+    <duracloud.db.version>6.2.0</duracloud.db.version>
+    <duraspace-codestyle.version>1.1.0</duraspace-codestyle.version>
     <org.springframework.version>4.2.5.RELEASE</org.springframework.version>
     <org.springframework.security.version>4.0.4.RELEASE</org.springframework.security.version>
     <org.springframework.webflow.version>2.4.2.RELEASE</org.springframework.webflow.version>
@@ -247,7 +244,6 @@
     <tiles.version>2.2.2</tiles.version>
     <selenium.version>2.19.0</selenium.version>
     <slf4j.version>1.7.6</slf4j.version>
-    <enforce-victims.rule.version>1.3.4</enforce-victims.rule.version>
     <jetty.version>9.4.14.v20181114</jetty.version>
   </properties>
 
@@ -271,7 +267,7 @@
     <repository>
       <id>central</id>
       <name>Maven Repository Switchboard</name>
-      <url>http://repo1.maven.org/maven2</url>
+      <url>https://repo1.maven.org/maven2</url>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
@@ -450,15 +446,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>1.4</version>
-        <dependencies>
-          <dependency>
-            <groupId>com.redhat.victims</groupId>
-            <artifactId>enforce-victims-rule</artifactId>
-            <version>${enforce-victims.rule.version}</version>
-            <type>jar</type>
-          </dependency>
-        </dependencies>
+        <version>3.0.0-M3</version>
         <executions>
           <execution>
             <goals>
@@ -475,21 +463,9 @@
                     <exclude>com.springsource.org.apache.commons.logging</exclude>
                   </excludes>
                 </bannedDependencies>
-              </rules>
-            </configuration>
-          </execution>
-          <execution>
-            <id>enforce-victims-rule</id>
-            <goals>
-              <goal>enforce</goal>
-            </goals>
-            <configuration>
-              <rules>
-                <rule implementation="com.redhat.victims.VictimsRule">
-                  <metadata>fatal</metadata>
-                  <fingerprint>fatal</fingerprint>
-                  <updates>weekly</updates>
-                </rule>
+                <requireMavenVersion>
+                  <version>[3.5.0,4.0.0)</version>
+                </requireMavenVersion>
               </rules>
             </configuration>
           </execution>
@@ -523,11 +499,11 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>3.0.0</version>
+        <version>3.1.0</version>
         <executions>
           <execution>
             <id>verify-style</id>
-            <!-- Bind to verify so it runs after package & unit tests, but before install --> 
+            <!-- Bind to verify so it runs after package & unit tests, but before install -->
             <phase>verify</phase>
             <goals>
               <goal>check</goal>
@@ -553,7 +529,7 @@
           <dependency>
             <groupId>com.puppycrawl.tools</groupId>
             <artifactId>checkstyle</artifactId>
-            <version>8.21</version>
+            <version>8.29</version>
           </dependency>
         </dependencies>
       </plugin>
@@ -1395,21 +1371,15 @@
       </dependency>
 
       <dependency>
-        <groupId>org.codehaus.jackson</groupId>
-        <artifactId>jackson-core-asl</artifactId>
-        <version>1.9.5</version>
+        <groupId>com.rabbitmq</groupId>
+        <artifactId>amqp-client</artifactId>
+        <version>5.7.0</version>
       </dependency>
 
       <dependency>
-        <groupId>org.codehaus.jackson</groupId>
-        <artifactId>jackson-mapper-asl</artifactId>
-        <version>1.9.5</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.codehaus.jackson</groupId>
-        <artifactId>jackson-xc</artifactId>
-        <version>1.9.5</version>
+        <groupId>com.fasterxml.jackson.module</groupId>
+        <artifactId>jackson-module-jaxb-annotations</artifactId>
+        <version>${jackson.version}</version>
       </dependency>
 
       <dependency>

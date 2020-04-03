@@ -5,13 +5,13 @@
   <groupId>org.duracloud</groupId>
   <artifactId>synctoolui</artifactId>
   <packaging>war</packaging>
-  <version>6.1.1</version>
+  <version>6.2.0</version>
   <name>DuraCloud Sync Tool</name>
 
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>6.1.1</version>
+    <version>6.2.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -23,8 +23,7 @@
     <skipUTs>false</skipUTs>
     <jetty.port>8888</jetty.port>
     <durcloud.defaultport>443</durcloud.defaultport>
-    <installbuilder.executable.path>/Applications/BitRock InstallBuilder Enterprise
-      15.1.0/bin/Builder.app/Contents/MacOS/installbuilder.sh
+    <installbuilder.executable.path>/Applications/BitRock InstallBuilder Enterprise 19.12.0/bin/Builder.app/Contents/MacOS/installbuilder.sh
     </installbuilder.executable.path>
     <jre.unpack.dir>${project.build.directory}/jre</jre.unpack.dir>
   </properties>
