@@ -30,6 +30,7 @@ import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.common.util.DateUtil;
 import org.duracloud.retrieval.source.ContentStream;
 import org.duracloud.retrieval.source.RetrievalSource;
+import org.duracloud.stitch.error.MissingContentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -121,6 +122,8 @@ public class RetrievalWorker implements Runnable {
                 props = retrieveToFile(localFile, listener);
                 succeed(localFile.getAbsolutePath());
             }
+        } catch (MissingContentException mce) {
+            missing(mce.getMessage());
         } catch (Throwable e) {
             logger.error("Exception retrieving remote file " +
                          contentItem.getContentId() + " as local file " +
@@ -236,6 +239,8 @@ public class RetrievalWorker implements Runnable {
             contentStream = new Retrier(5, 4000, 3).execute(() -> {
                 return source.getSourceContent(contentItem, listener);
             });
+        } catch (MissingContentException mce) {
+            throw mce;
         } catch (Exception ex) {
             throw new IOException(ex);
         }
@@ -338,9 +343,15 @@ public class RetrievalWorker implements Runnable {
                        " after " + attempts +
                        " attempts. Last error message was: " + errMsg;
         logger.error(error);
-        System.err.println(error);
         outWriter.writeFailure(contentItem, error, attempts);
         statusManager.failedCompletion();
     }
 
+    protected void missing(String msg) {
+        String message = "Unable to retrieve " + contentItem.toString() +
+                         " because it doesn't exist in the space.";
+        logger.error(message);
+        outWriter.writeMissing(contentItem, message, attempts);
+        statusManager.missingCompletion();
+    }
 }

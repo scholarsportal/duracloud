@@ -5,7 +5,7 @@
   <groupId>org.duracloud</groupId>
   <artifactId>duracloud</artifactId>
   <packaging>pom</packaging>
-  <version>6.2.1</version>
+  <version>7.0.0</version>
   <name>DuraCloud</name>
   <description>Cloud-based digital content preservation system</description>
   <url>https://duracloud.org</url>
@@ -186,7 +186,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <version>2.9.1</version>
+            <version>3.2.0</version>
             <executions>
               <execution>
                 <id>attach-javadocs</id>
@@ -195,7 +195,7 @@
                   <goal>jar</goal>
                 </goals>
                 <configuration>
-                  <additionalparam>${javadoc.opts}</additionalparam>
+                  <additionalOptions>${javadoc.opts}</additionalOptions>
                 </configuration>
               </execution>
             </executions>
@@ -232,7 +232,7 @@
     <instrumentedTests>**/*Test*__*.class</instrumentedTests>
     <innerClasses>**/*$*</innerClasses>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <duracloud.db.version>6.2.0</duracloud.db.version>
+    <duracloud.db.version>7.0.0</duracloud.db.version>
     <duraspace-codestyle.version>1.1.0</duraspace-codestyle.version>
     <org.springframework.version>4.2.5.RELEASE</org.springframework.version>
     <org.springframework.security.version>4.0.4.RELEASE</org.springframework.security.version>
@@ -244,7 +244,9 @@
     <tiles.version>2.2.2</tiles.version>
     <selenium.version>2.19.0</selenium.version>
     <slf4j.version>1.7.6</slf4j.version>
-    <jetty.version>9.4.14.v20181114</jetty.version>
+    <jetty.version>9.4.31.v20200723</jetty.version>
+    <jaxb.api.version>2.3.1</jaxb.api.version>
+    <jaxb.runtime.version>2.3.3</jaxb.runtime.version>
   </properties>
 
   <distributionManagement>
@@ -331,10 +333,9 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.1</version>
+        <version>3.8.1</version>
         <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
+          <release>11</release>
           <encoding>UTF-8</encoding>
         </configuration>
       </plugin>
@@ -558,6 +559,7 @@
           <configuration>
             <schemaDirectory>src/main/resources</schemaDirectory>
             <outputJar>target/${project.artifactId}-xmlbeans-${project.version}.jar</outputJar>
+            <javaSource>1.8</javaSource>
           </configuration>
         </plugin>
 
@@ -644,7 +646,7 @@
       <dependency>
         <groupId>org.easymock</groupId>
         <artifactId>easymock</artifactId>
-        <version>3.4</version>
+        <version>4.0.2</version>
       </dependency>
 
       <dependency>
@@ -855,13 +857,13 @@
       <dependency>
         <groupId>javax.xml.bind</groupId>
         <artifactId>jaxb-api</artifactId>
-        <version>2.1</version>
+        <version>${jaxb.api.version}</version>
       </dependency>
 
       <dependency>
-        <groupId>com.sun.xml.bind</groupId>
-        <artifactId>jaxb-impl</artifactId>
-        <version>2.1.9</version>
+        <groupId>org.glassfish.jaxb</groupId>
+        <artifactId>jaxb-runtime</artifactId>
+        <version>${jaxb.runtime.version}</version>
       </dependency>
 
       <dependency>

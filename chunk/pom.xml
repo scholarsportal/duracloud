@@ -4,13 +4,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud</groupId>
   <artifactId>chunk</artifactId>
-  <version>6.2.1</version>
+  <version>7.0.0</version>
   <name>Stream Chunking</name>
 
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>6.2.1</version>
+    <version>7.0.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -25,6 +25,9 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>xmlbeans-maven-plugin</artifactId>
+        <configuration>
+          <javaSource>1.8</javaSource>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
