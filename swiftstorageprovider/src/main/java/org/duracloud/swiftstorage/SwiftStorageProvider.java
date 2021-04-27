@@ -267,6 +267,18 @@ public class SwiftStorageProvider extends S3StorageProvider {
                     if (metaName.trim().equalsIgnoreCase(Headers.ETAG)) {
                         metaName = Headers.ETAG;
                     }
+                    if (metaName.trim().equalsIgnoreCase(Headers.CONTENT_LENGTH)) {
+                        metaName = Headers.CONTENT_LENGTH;
+                    }
+                    if (metaName.trim().equalsIgnoreCase(Headers.DATE)) {
+                        metaName = Headers.DATE;
+                    }
+                    if (metaName.trim().equalsIgnoreCase(Headers.LAST_MODIFIED)) {
+                        metaName = Headers.LAST_MODIFIED;
+                    }
+                    if (metaName.trim().equalsIgnoreCase(Headers.CONTENT_TYPE)) {
+                        metaName = Headers.CONTENT_TYPE;
+                    }
                     contentProperties.put(metaName, String.valueOf(metaValue));
                 }
             } catch (IllegalArgumentException e) {
