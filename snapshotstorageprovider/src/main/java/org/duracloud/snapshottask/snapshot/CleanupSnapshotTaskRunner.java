@@ -22,7 +22,6 @@ import java.util.Set;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.BucketLifecycleConfiguration;
-
 import org.duracloud.audit.task.AuditTask;
 import org.duracloud.audit.task.AuditTask.ActionType;
 import org.duracloud.common.error.DuraCloudRuntimeException;

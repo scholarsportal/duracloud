@@ -30,7 +30,7 @@
     
      <dependency>
       <groupId>org.duracloud</groupId>
-      <artifactId>notification-spring</artifactId>
+      <artifactId>notification-smtp</artifactId>
       <version>${project.version}</version>
     </dependency>
 
